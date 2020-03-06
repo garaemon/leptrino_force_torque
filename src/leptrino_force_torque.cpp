@@ -68,7 +68,7 @@ typedef struct ST_SystemInfo
 // =============================================================================
 //	プロトタイプ宣言
 // =============================================================================
-void App_Init(void);
+void App_Init(int baud_rate, int parity, int bit_length, int stop, int rts, int dtr);
 void App_Close(void);
 ULONG SendData(UCHAR *pucInput, USHORT usSize);
 void GetProductInfo(void);
@@ -111,6 +111,18 @@ int main(int argc, char** argv)
 
   std::string frame_id = "leptrino";
   nh_private.getParam("frame_id", frame_id);
+  int baud_rate = 460800;
+  nh_private.getParam("baud_rate", baud_rate);
+  int parity = PAR_NON;
+  nh_private.getParam("parity", parity);
+  int bit_length = BIT_LEN_8;
+  nh_private.getParam("bit_length", bit_length);
+  int stop = 0;
+  nh_private.getParam("stop", stop);
+  int rts = 0;
+  nh_private.getParam("rts", rts);
+  int dtr = 0;
+  nh_private.getParam("dtr", dtr);
 
   int i, l = 0, rt = 0;
   ST_RES_HEAD *stCmdHead;
@@ -118,7 +130,7 @@ int main(int argc, char** argv)
   ST_R_GET_INF *stGetInfo;
   ST_R_LEP_GET_LIMIT* stGetLimit;
 
-  App_Init();
+  App_Init(baud_rate, parity, bit_length, stop, rts, dtr);
 
   if (gSys.com_ok == NG)
   {
@@ -250,7 +262,7 @@ int main(int argc, char** argv)
 //	引数	: non
 //	戻り値	: non
 // ----------------------------------------------------------------------------------
-void App_Init(void)
+void App_Init(int baud_rate, int parity, int bit_length, int stop, int rts, int dtr)
 {
   int rt;
 
@@ -259,7 +271,7 @@ void App_Init(void)
   rt = Comm_Open(g_com_port.c_str());
   if (rt == OK)
   {
-    Comm_Setup(460800, PAR_NON, BIT_LEN_8, 0, 0, CHR_ETX);
+    Comm_Setup(baud_rate, parity, bit_length, stop, rts, dtr, CHR_ETX);
     gSys.com_ok = OK;
   }
 

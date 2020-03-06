@@ -78,13 +78,13 @@ void Comm_Close()
 //	ポート設定
 // ----------------------------------------------------------------------------------
 //	引数	: boud   .. ボーレート 9600 19200 ....
-//			: parity .. パリティー 
+//			: parity .. パリティー
 //			: bitlen .. ビット長
 //			: rts    .. RTS制御
 //			: dtr    .. DTR制御
 //	戻り値	: non
 // ----------------------------------------------------------------------------------
-void Comm_Setup(long baud, int parity, int bitlen, int rts, int dtr, char code)
+void Comm_Setup(long baud, int parity, int bitlen, int stop, int rts, int dtr, char code)
 {
   long brate;
   long cflg;
@@ -168,6 +168,10 @@ void Comm_Setup(long baud, int parity, int bitlen, int rts, int dtr, char code)
 
   //ポート設定フラグ
   tio.c_cflag = cflg | CREAD;
+  if (stop == 2)
+  {
+    tio.c_cflag = tio.c_cflag | CSTOPB;
+  }
   tio.c_lflag = 0;
   tio.c_iflag = 0;
   tio.c_oflag = 0;
@@ -227,7 +231,7 @@ int Comm_GetRcvData(UCHAR *buff)
 // ----------------------------------------------------------------------------------
 //	受信有無確認
 // ----------------------------------------------------------------------------------
-//	引数	: non 
+//	引数	: non
 //	戻り値	: 0:なし 0以外：あり
 // ----------------------------------------------------------------------------------
 int Comm_CheckRcv()
@@ -238,7 +242,7 @@ int Comm_CheckRcv()
 // ----------------------------------------------------------------------------------
 //	受信監視スレッド
 // ----------------------------------------------------------------------------------
-//	引数	: pParam .. 
+//	引数	: pParam ..
 //	戻り値	: non
 // ----------------------------------------------------------------------------------
 unsigned char rbuff[MAX_LENGTH];

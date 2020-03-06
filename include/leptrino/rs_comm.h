@@ -34,7 +34,7 @@
 
 int Comm_Open(const char * dev); //デバイスオープン
 void Comm_Close(void); //デバイスクローズ
-void Comm_Setup(long baud, int parity, int bitlen, int rts, int dtr, char code); //ポート設定
+void Comm_Setup(long baud, int parity, int bitlen, int stop, int rts, int dtr, char code); //ポート設定
 int Comm_SendData(UCHAR *buff, int l);
 int Comm_CheckRcv(void); //受信有無確認
 int Comm_GetRcvData(UCHAR *buff); //受信データ取得
