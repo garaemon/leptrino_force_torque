@@ -73,6 +73,7 @@ void App_Close(void);
 ULONG SendData(UCHAR *pucInput, USHORT usSize);
 void GetProductInfo(void);
 void GetLimit(void);
+void GetFilterSetting(void);
 void SerialStart(void);
 void SerialStop(void);
 
@@ -117,6 +118,7 @@ int main(int argc, char** argv)
   ST_R_DATA_GET_F *stForce;
   ST_R_GET_INF *stGetInfo;
   ST_R_LEP_GET_LIMIT* stGetLimit;
+  ST_R_LEP_GET_DF* stGetFilter;
 
   App_Init();
 
@@ -171,6 +173,28 @@ int main(int argc, char** argv)
           ROS_INFO("\tLimit[%d]: %f", i, stGetLimit->fLimit[i]);
           conversion_factor[i] = stGetLimit->fLimit[i] * 1e-4;
         }
+        break;
+      }
+    }
+    else
+    {
+      rate.sleep();
+    }
+  }
+
+  GetFilterSetting();
+  while (ros::ok())
+  {
+    Comm_Rcv();
+    if (Comm_CheckRcv() != 0)
+    { //受信データ有
+      CommRcvBuff[0] = 0;
+
+      rt = Comm_GetRcvData(CommRcvBuff);
+      if (rt > 0)
+      {
+        stGetFilter = (ST_R_LEP_GET_DF *)CommRcvBuff;
+        ROS_INFO("\tucDF: %d", stGetFilter->ucDF);
         break;
       }
     }
@@ -356,6 +380,20 @@ void GetLimit(void)
   SendBuff[0] = len; // レングス
   SendBuff[1] = 0xFF; // センサNo.
   SendBuff[2] = CMD_GET_LIMIT; // コマンド種別
+  SendBuff[3] = 0; // 予備
+
+  SendData(SendBuff, len);
+}
+
+void GetFilterSetting(void)
+{
+  USHORT len;
+
+  ROS_INFO("Get filter setting");
+  len = 0x04;
+  SendBuff[0] = len; // レングス
+  SendBuff[1] = 0xFF; // センサNo.
+  SendBuff[2] = CMD_GET_DF; // コマンド種別
   SendBuff[3] = 0; // 予備
 
   SendData(SendBuff, len);
